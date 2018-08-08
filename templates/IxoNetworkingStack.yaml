@@ -174,14 +174,6 @@ Metadata:
       embeds: []
       iscontainedinside:
         - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
     f9bbaad5-d758-4b57-ac09-a2688828813b:
       size:
         width: 240
@@ -194,14 +186,6 @@ Metadata:
       embeds:
         - e65c85ac-5ebe-4d21-83ef-e9a8557f749e
       iscontainedinside:
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
         - 42f62244-d45b-415a-b97c-28cac68733bd
     6c4db1cb-64b8-48ab-8edc-ee7e46cdb3ad:
       source:
@@ -223,14 +207,6 @@ Metadata:
         - a895d245-b6bf-454e-b5fd-5e490bc49308
       iscontainedinside:
         - f9bbaad5-d758-4b57-ac09-a2688828813b
-        - f9bbaad5-d758-4b57-ac09-a2688828813b
-        - f9bbaad5-d758-4b57-ac09-a2688828813b
-        - f9bbaad5-d758-4b57-ac09-a2688828813b
-        - f9bbaad5-d758-4b57-ac09-a2688828813b
-        - f9bbaad5-d758-4b57-ac09-a2688828813b
-        - f9bbaad5-d758-4b57-ac09-a2688828813b
-        - f9bbaad5-d758-4b57-ac09-a2688828813b
-        - f9bbaad5-d758-4b57-ac09-a2688828813b
       dependson:
         - 6c4db1cb-64b8-48ab-8edc-ee7e46cdb3ad
     b7a83aba-5f77-4922-841c-fa659d86502d:
@@ -247,14 +223,6 @@ Metadata:
         - c3a5303a-dbf0-48fd-b783-1a34c6c78342
       iscontainedinside:
         - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
     c3a5303a-dbf0-48fd-b783-1a34c6c78342:
       size:
         width: 60
@@ -266,14 +234,6 @@ Metadata:
       parent: b7a83aba-5f77-4922-841c-fa659d86502d
       embeds: []
       iscontainedinside:
-        - b7a83aba-5f77-4922-841c-fa659d86502d
-        - b7a83aba-5f77-4922-841c-fa659d86502d
-        - b7a83aba-5f77-4922-841c-fa659d86502d
-        - b7a83aba-5f77-4922-841c-fa659d86502d
-        - b7a83aba-5f77-4922-841c-fa659d86502d
-        - b7a83aba-5f77-4922-841c-fa659d86502d
-        - b7a83aba-5f77-4922-841c-fa659d86502d
-        - b7a83aba-5f77-4922-841c-fa659d86502d
         - b7a83aba-5f77-4922-841c-fa659d86502d
       dependson:
         - 6c4db1cb-64b8-48ab-8edc-ee7e46cdb3ad
@@ -314,11 +274,6 @@ Metadata:
       embeds: []
       iscontainedinside:
         - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
-        - 42f62244-d45b-415a-b97c-28cac68733bd
     090078c2-f708-4a32-93da-435cb089eeec:
       size:
         width: 60
@@ -330,6 +285,4 @@ Metadata:
       parent: b7a83aba-5f77-4922-841c-fa659d86502d
       embeds: []
       iscontainedinside:
-        - b7a83aba-5f77-4922-841c-fa659d86502d
-        - b7a83aba-5f77-4922-841c-fa659d86502d
         - b7a83aba-5f77-4922-841c-fa659d86502d
