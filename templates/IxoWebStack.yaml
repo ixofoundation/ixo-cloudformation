@@ -1,28 +1,11 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >-
-  AWS CloudFormation template instantiating a stack with a Elysian PDS
-  (Personal Data Store) instance. This instance is placed on the Subnet that was exported
-  when creating the Proxied Network stack.
-  Imported resources:
-      - VPC
-      - PublicSubnet
-      - HostInstanceSecurityGroup
-      - SSHKey
+  AWS CloudFormation template instantiating a stack serving ixo web
 Parameters:
-  NetworkStackName:
-    Description: >-
-      Name of an active CloudFormation stack that contains the networking
-      resources, such as the subnet and security group, that will be used in
-      this stack.
+  WebhostInstanceType:
+    Description: EC2 instance type to apply when creating the EC2 Instance
     Type: String
-    MinLength: 1
-    MaxLength: 255
-    AllowedPattern: '^[a-zA-Z][-a-zA-Z0-9]*$'
-    Default: Elysian-Proxied-Network-Stack
-  DockerHostInstanceType:
-    Description: EC2 instance type to apply when creating the DockerHost EC2 Instance
-    Type: String
-    Default: t2.medium
+    Default: t2.small
     AllowedValues:
       - t1.micro
       - t2.nano
@@ -79,10 +62,6 @@ Parameters:
       - cc2.8xlarge
       - cg1.4xlarge
     ConstraintDescription: must be a valid EC2 instance type.
-  VolumeSize:
-    Description: Size in GB for persistent volume on EBS
-    Type: Number
-    Default: 16
   KeyName:
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
     Type: 'AWS::EC2::KeyPair::KeyName'
@@ -278,21 +257,273 @@ Mappings:
       HVM64: ami-3e60745c
       HVMG2: NOT_SUPPORTED
 Resources:
-  PersistentVolume:
-    Type: AWS::EC2::Volume
-    DeletionPolicy: Retain
+  VPC:
+    Type: 'AWS::EC2::VPC'
     Properties:
-      AvailabilityZone: !ImportValue
-        'Fn::Sub': '${NetworkStackName}-AvailabilityZone'
-      VolumeType: gp2
-      Size: !Ref VolumeSize
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      CidrBlock: 10.0.0.0/16
       Tags:
-        - Key: "Name"
-          Value: !Join [ '-', [ !Ref 'AWS::StackName', 'PersistentVolume' ] ]
-        - Key: "Stack"
+        - Key: Application
+          Value: !Ref 'AWS::StackId'
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 42f62244-d45b-415a-b97c-28cac68733bd
+  PublicSubnet:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.0.0/24
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackId'
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: b7a83aba-5f77-4922-841c-fa659d86502d
+  InternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+    Properties:
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackId'
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: a895d245-b6bf-454e-b5fd-5e490bc49308
+  AttachGateway:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 6c4db1cb-64b8-48ab-8edc-ee7e46cdb3ad
+  RouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackId'
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: f9bbaad5-d758-4b57-ac09-a2688828813b
+  Route:
+    Type: 'AWS::EC2::Route'
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref RouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: e65c85ac-5ebe-4d21-83ef-e9a8557f749e
+  SubnetRouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PublicSubnet
+      RouteTableId: !Ref RouteTable
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 75a2a437-5dba-4037-bac8-fc1ac9cce3f7
+  SubnetNetworkAclAssociation:
+    Type: 'AWS::EC2::SubnetNetworkAclAssociation'
+    Properties:
+      SubnetId: !Ref PublicSubnet
+      NetworkAclId: !GetAtt
+        - VPC
+        - DefaultNetworkAcl
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: ed7176bb-1475-4c51-89e8-d8959196563a
+  WebhostInstanceSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref VPC
+      GroupDescription: Enable HTTP traffic on port 80, HTTPS traffic on port 443 & SSH access via port 22
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: !Ref SSHLocation
+        - IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: '443'
+          ToPort: '443'
+          CidrIp: 0.0.0.0/0
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: fbd52d3e-087e-46f8-b55b-c22f6d4b0c79
+  WebhostInstance:
+    Type: 'AWS::EC2::Instance'
+    DependsOn:
+      - AttachGateway
+    Metadata:
+      'AWS::CloudFormation::Init':
+        configSets:
+          Prepare:
+            - PrepareCfnHup
+            - PrepareNGiNX
+          Start:
+            - StartNGiNX
+        PrepareCfnHup:
+          files:
+            /etc/cfn/cfn-hup.conf:
+              content: !Join
+                - ''
+                - - |
+                    [main]
+                  - stack=
+                  - !Ref 'AWS::StackId'
+                  - |+
+
+                  - region=
+                  - !Ref 'AWS::Region'
+                  - |+
+
+              mode: '000400'
+              owner: root
+              group: root
+            /etc/cfn/hooks.d/cfn-auto-reloader.conf:
+              content: !Join
+                - ''
+                - - |
+                    [cfn-auto-reloader-hook]
+                  - |
+                    triggers=post.update
+                  - >
+                    path=Resources.WebhostInstance.Metadata.AWS::CloudFormation::Init
+                  - 'action=/opt/aws/bin/cfn-init -v '
+                  - '         --stack '
+                  - !Ref 'AWS::StackName'
+                  - '         --resource WebhostInstance '
+                  - '         --region '
+                  - !Ref 'AWS::Region'
+                  - |+
+
+                  - |
+                    runas=root
+              mode: '000400'
+              owner: root
+              group: root
+          services:
+            sysvinit:
+              cfn-hup:
+                enabled: 'true'
+                ensureRunning: 'true'
+                files:
+                  - /etc/cfn/cfn-hup.conf
+                  - /etc/cfn/hooks.d/cfn-auto-reloader.conf
+        PrepareNGiNX:
+          packages:
+            yum:
+              nginx: [1.12.1]
+          files:
+            /etc/nginx/conf.d/default.conf.eg:
+              content: !Sub |
+                '#server {'
+                '#    server_name  SUB_DOMAIN.HOST_DOMAIN;'
+                '#'
+                '#    location / {'
+                '#	      proxy_pass   http://PRIVATE_IP:5000;'
+                '#    }'
+                '#}'
+              mode: '000400'
+              owner: root
+              group: root
+          commands:
+            adjust-nginx-root-location-proxy-pass:
+              command: |
+                sed -i '1, 100 s/location \/ {/location \/ { \
+                            proxy_pass   PASS_ADDRESS:5000;/' nginx.conf
+              cwd: "/etc/nginx"
+            set-nginx-root-location-proxy-pass-address:
+              command: !Sub
+                - "sed -i 's/PASS_ADDRESS/${privateIp}/g' nginx.conf"
+                - privateIp: !Join ['', ['http', ':\/\/', !GetAtt HostInstance.PrivateIp]]
+              cwd: "/etc/nginx"
+        StartNGiNX:
+          services:
+            sysvinit:
+              nginx:
+                enabled: 'true'
+                ensureRunning: 'true'
+      'AWS::CloudFormation::Designer':
+        id: c3a5303a-dbf0-48fd-b783-1a34c6c78342
+    Properties:
+      ImageId: !FindInMap
+        - AWSRegionArch2AMI
+        - !Ref 'AWS::Region'
+        - !FindInMap
+          - AWSInstanceType2Arch
+          - !Ref WebhostInstanceType
+          - Arch
+      InstanceType: !Ref WebhostInstanceType
+      KeyName: !Ref KeyName
+      Tags:
+        - Key: Name
+          Value: ixo Web Instance
+        - Key: Stack
           Value: !Ref 'AWS::StackName'
+        - Key: Application
+          Value: !Ref 'AWS::StackId'
+      NetworkInterfaces:
+        - GroupSet:
+            - !Ref WebhostInstanceSecurityGroup
+          AssociatePublicIpAddress: 'true'
+          DeviceIndex: '0'
+          DeleteOnTermination: 'true'
+          SubnetId: !Ref PublicSubnet
+      UserData: !Base64
+        'Fn::Join':
+          - ''
+          - - |
+              #!/bin/bash -xe
+            - |
+              yum update -y aws-cfn-bootstrap
+
+            - '/opt/aws/bin/cfn-init -v '
+            - '         --stack '
+            - !Ref 'AWS::StackName'
+            - '         --resource WebhostInstance '
+            - '         --configsets Prepare '
+            - '         --region '
+            - !Ref 'AWS::Region'
+            - |+
+
+            - '/opt/aws/bin/cfn-init -v '
+            - '         --stack '
+            - !Ref 'AWS::StackName'
+            - '         --resource WebhostInstance '
+            - '         --configsets Start '
+            - '         --region '
+            - !Ref 'AWS::Region'
+            - |+
+
+            - '/opt/aws/bin/cfn-signal -e $? '
+            - '         --stack '
+            - !Ref 'AWS::StackName'
+            - '         --resource WebhostInstance '
+            - '         --region '
+            - !Ref 'AWS::Region'
+            - ''
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT5M
+  WebhostIPAddress:
+    Type: 'AWS::EC2::EIP'
+    DependsOn: AttachGateway
+    Properties:
+      Domain: vpc
+      InstanceId: !Ref WebhostInstance
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: b0d68bfc-1338-48b0-ac38-247fd9f34309
   HostInstance:
     Type: 'AWS::EC2::Instance'
+    DependsOn: AttachGateway
     Properties:
       InstanceType: !Ref DockerHostInstanceType
       ImageId: !FindInMap
@@ -306,13 +537,11 @@ Resources:
       Monitoring: true
       NetworkInterfaces:
         - GroupSet:
-            - !ImportValue
-              'Fn::Sub': '${NetworkStackName}-HostInstanceSecurityGroup-Id'
+            - !Ref HostInstanceSecurityGroup
           AssociatePublicIpAddress: 'true'
           DeviceIndex: '0'
           DeleteOnTermination: 'true'
-          SubnetId:  !ImportValue
-            'Fn::Sub': '${NetworkStackName}-PublicSubnet-Id'
+          SubnetId: !Ref PublicSubnet
       Volumes:
         - VolumeId: !Ref PersistentVolume
           Device: /dev/sdf
@@ -356,7 +585,7 @@ Resources:
             - ''
       Tags:
         - Key: Name
-          Value: Elysian/PDS Additional Host Instance
+          Value: Elysian/PDS Default Host Instance
         - Key: Stack
           Value: !Ref 'AWS::StackName'
         - Key: Application
@@ -485,12 +714,40 @@ Resources:
               command: chmod -R ugo+r+w+x db
               cwd: "/home/ec2-user/elysian"
             docker-compose-elysian:
-              command: !Sub './bin/start.sh'
+              command: './bin/start.sh'
               cwd: "/home/ec2-user/elysian"
               env:
                 HOME: "/home/ec2-user/elysian"
       'AWS::CloudFormation::Designer':
         id: 090078c2-f708-4a32-93da-435cb089eeec
+Outputs:
+  VPCId:
+    Description: VPC
+    Value: !Ref VPC
+    Export:
+      Name: !Sub '${AWS::StackName}-VPC-Id'
+  PublicSubnetId:
+    Description: The subnet ID to use for public web servers
+    Value: !Ref PublicSubnet
+    Export:
+      Name: !Sub '${AWS::StackName}-PublicSubnet-Id'
+  HostInstanceSecurityGroupId:
+    Description: The security group Id to use for public servers
+    Value: !Ref HostInstanceSecurityGroup
+    Export:
+      Name: !Sub '${AWS::StackName}-HostInstanceSecurityGroup-Id'
+  AvailabilityZone:
+    Description: The availability zone to use for persistent volumes
+    Value: !GetAtt
+      - PublicSubnet
+      - AvailabilityZone
+    Export:
+      Name: !Sub '${AWS::StackName}-AvailabilityZone'
+  SSHKey:
+    Description: The EC2 KeyPair to enable SSH access to the instances
+    Value: !Ref KeyName
+    Export:
+      Name: !Sub '${AWS::StackName}-SSHKey'
 Metadata:
   'AWS::CloudFormation::Designer':
     a895d245-b6bf-454e-b5fd-5e490bc49308:

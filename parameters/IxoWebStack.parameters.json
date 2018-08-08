@@ -1,14 +1,10 @@
 [
   {
-    "ParameterKey": "NetworkStackName",
-    "ParameterValue": "Elysian-Proxied-Network-Stack"
-  },
-  {
     "ParameterKey": "KeyName",
     "ParameterValue": "ixoworld.xyz"
   },
   {
-    "ParameterKey": "DockerHostInstanceType",
+    "ParameterKey": "WebhostInstanceType",
     "ParameterValue": "t2.medium"
   },
   {
