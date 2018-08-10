@@ -455,7 +455,7 @@ Resources:
       NetworkInterfaces:
         - GroupSet:
             - !ImportValue
-              'Fn::Sub': '${NetworkStackName}-HostInstanceSecurityGroup-Id'
+              'Fn::Sub': '${NetworkStackName}-CloudflareProtectedInstancesSecurityGroup-Id'
           AssociatePublicIpAddress: 'true'
           DeviceIndex: '0'
           DeleteOnTermination: 'true'
