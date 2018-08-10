@@ -380,9 +380,6 @@ Resources:
             extract-docker-compose:
               command: cp ixo-blockchain-explorer-repository/docker-compose.yml ixo-blockchain-explorer/
               cwd: "/home/ec2-user"
-            extract-docker-compose-port80:
-              command: cp ixo-blockchain-explorer-repository/docker-compose.port80.yml ixo-blockchain-explorer/
-              cwd: "/home/ec2-user"
             extract-ixo-blockchain-explorer-scripts:
               command: cp ixo-blockchain-explorer-repository/bin/* ixo-blockchain-explorer/bin
               cwd: "/home/ec2-user"
@@ -434,7 +431,7 @@ Resources:
         DeployBlockchainExplorer:
           commands:
             docker-compose-ixo-blockchain-explorer:
-              command: './bin/start.sh skip-building expose-over-port80'
+              command: './bin/start.sh skip-building'
               cwd: "/home/ec2-user/ixo-blockchain-explorer"
               env:
                 HOME: "/home/ec2-user/ixo-blockchain-explorer"
@@ -456,6 +453,8 @@ Resources:
         - GroupSet:
             - !ImportValue
               'Fn::Sub': '${NetworkStackName}-CloudflareProtectedInstancesSecurityGroup-Id'
+            - !ImportValue
+              'Fn::Sub': '${NetworkStackName}-BlockchainInstancesSecurityGroup-Id'
           AssociatePublicIpAddress: 'true'
           DeviceIndex: '0'
           DeleteOnTermination: 'true'

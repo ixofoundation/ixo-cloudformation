@@ -1,10 +1,11 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >-
-  AWS CloudFormation template instantiating a Network stack to contain ixo's component services.
-  Exported resources:
+  AWS CloudFormation template instantiating a Network stack to contain ixo's
+  component services. Exported resources:
     - VPCId
     - PublicSubnetId
     - PublicInstancesSecurityGroupId
+    - BlockchainInstancesSecurityGroupId
     - CloudflareProtectedInstancesSecurityGroupId
     - AvailabilityZone
 Parameters:
@@ -89,7 +90,7 @@ Resources:
     Type: 'AWS::EC2::SubnetNetworkAclAssociation'
     Properties:
       SubnetId: !Ref PublicSubnet
-      NetworkAclId: !GetAtt
+      NetworkAclId: !GetAtt 
         - VPC
         - DefaultNetworkAcl
     Metadata:
@@ -99,7 +100,9 @@ Resources:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       VpcId: !Ref VPC
-      GroupDescription: Enable HTTP traffic on port 80, HTTPS traffic on port 443 & SSH access via port 22
+      GroupDescription: >-
+        Enable HTTP traffic on port 80, HTTPS traffic on port 443 & SSH access
+        via port 22
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: '22'
@@ -116,11 +119,30 @@ Resources:
     Metadata:
       'AWS::CloudFormation::Designer':
         id: fbd62d3e-087e-46e8-b55b-c22f6d4c0c89
+  BlockchainInstancesSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref VPC
+      GroupDescription: Enable HTTP traffic on ports 46656 & 46657
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '46656'
+          ToPort: '46656'
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: '46657'
+          ToPort: '46657'
+          CidrIp: 0.0.0.0/0
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: fbd62d3e-087e-46e8-b55b-c22f6d4c09c8a
   CloudflareProtectedInstancesSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       VpcId: !Ref VPC
-      GroupDescription: Enable HTTP traffic on port 80 only from Cloudflare IPs & SSH access via port 22
+      GroupDescription: >-
+        Enable HTTP traffic on port 80 only from Cloudflare IPs & SSH access via
+        port 22
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: '22'
@@ -201,6 +223,11 @@ Outputs:
     Value: !Ref PublicInstancesSecurityGroup
     Export:
       Name: !Sub '${AWS::StackName}-PublicInstancesSecurityGroup-Id'
+  BlockchainInstancesSecurityGroupId:
+    Description: The security group Id to use for blockchain nodes
+    Value: !Ref BlockchainInstancesSecurityGroup
+    Export:
+      Name: !Sub '${AWS::StackName}-BlockchainInstancesSecurityGroup-Id'
   CloudflareProtectedInstancesSecurityGroupId:
     Description: The security group Id to use for public servers
     Value: !Ref CloudflareProtectedInstancesSecurityGroup
@@ -208,7 +235,7 @@ Outputs:
       Name: !Sub '${AWS::StackName}-CloudflareProtectedInstancesSecurityGroup-Id'
   AvailabilityZone:
     Description: The availability zone to use for persistent volumes
-    Value: !GetAtt
+    Value: !GetAtt 
       - PublicSubnet
       - AvailabilityZone
     Export:
@@ -233,8 +260,9 @@ Metadata:
         'y': 270
       z: 1
       embeds:
-        - 7e291fcb-8470-4055-a5a7-bb2a6817b82a
         - fbd52d3e-087e-46f8-b55b-c22f6d4b0c79
+        - fbd62d3e-087e-46e8-b55b-c22f6d4c09c8a
+        - fbd62d3e-087e-46e8-b55b-c22f6d4c0c89
         - f9bbaad5-d758-4b57-ac09-a2688828813b
         - b7a83aba-5f77-4922-841c-fa659d86502d
     fbd52d3e-087e-46f8-b55b-c22f6d4b0c79:
@@ -242,25 +270,27 @@ Metadata:
         width: 60
         height: 60
       position:
-        x: 600
-        'y': 330
+        x: 640
+        'y': 320
       z: 2
       parent: 42f62244-d45b-415a-b97c-28cac68733bd
       embeds: []
       iscontainedinside:
         - 42f62244-d45b-415a-b97c-28cac68733bd
+        - 42f62244-d45b-415a-b97c-28cac68733bd
     f9bbaad5-d758-4b57-ac09-a2688828813b:
       size:
-        width: 240
-        height: 240
+        width: 390
+        height: 540
       position:
-        x: 220
-        'y': 400
+        x: 210
+        'y': 390
       z: 2
       parent: 42f62244-d45b-415a-b97c-28cac68733bd
       embeds:
         - e65c85ac-5ebe-4d21-83ef-e9a8557f749e
       iscontainedinside:
+        - 42f62244-d45b-415a-b97c-28cac68733bd
         - 42f62244-d45b-415a-b97c-28cac68733bd
     6c4db1cb-64b8-48ab-8edc-ee7e46cdb3ad:
       source:
@@ -273,14 +303,15 @@ Metadata:
         width: 60
         height: 60
       position:
-        x: 250
-        'y': 460
+        x: 270
+        'y': 600
       z: 3
       parent: f9bbaad5-d758-4b57-ac09-a2688828813b
       embeds: []
       isassociatedwith:
         - a895d245-b6bf-454e-b5fd-5e490bc49308
       iscontainedinside:
+        - f9bbaad5-d758-4b57-ac09-a2688828813b
         - f9bbaad5-d758-4b57-ac09-a2688828813b
       dependson:
         - 6c4db1cb-64b8-48ab-8edc-ee7e46cdb3ad
@@ -293,38 +324,10 @@ Metadata:
         'y': 720
       z: 2
       parent: 42f62244-d45b-415a-b97c-28cac68733bd
-      embeds:
-        - 090078c2-f708-4a32-93da-435cb089eeec
-        - c3a5303a-dbf0-48fd-b783-1a34c6c78342
+      embeds: []
       iscontainedinside:
         - 42f62244-d45b-415a-b97c-28cac68733bd
-    c3a5303a-dbf0-48fd-b783-1a34c6c78342:
-      size:
-        width: 60
-        height: 60
-      position:
-        x: 140
-        'y': 880
-      z: 3
-      parent: b7a83aba-5f77-4922-841c-fa659d86502d
-      embeds: []
-      iscontainedinside:
-        - b7a83aba-5f77-4922-841c-fa659d86502d
-      dependson:
-        - 6c4db1cb-64b8-48ab-8edc-ee7e46cdb3ad
-    b0d68bfc-1338-48b0-ac38-247fd9f34309:
-      size:
-        width: 60
-        height: 60
-      position:
-        x: 900
-        'y': 210
-      z: 1
-      embeds: []
-      isassociatedwith:
-        - c3a5303a-dbf0-48fd-b783-1a34c6c78342
-      dependson:
-        - 6c4db1cb-64b8-48ab-8edc-ee7e46cdb3ad
+        - 42f62244-d45b-415a-b97c-28cac68733bd
     ed7176bb-1475-4c51-89e8-d8959196563a:
       source:
         id: b2558e8b-3fe4-4ada-a582-24e7f8227f4f
@@ -337,27 +340,27 @@ Metadata:
       target:
         id: b7a83aba-5f77-4922-841c-fa659d86502d
       z: 2
-    7e291fcb-8470-4055-a5a7-bb2a6817b82a:
+    fbd62d3e-087e-46e8-b55b-c22f6d4c09c8a:
       size:
         width: 60
         height: 60
       position:
-        x: 600
-        'y': 430
+        x: 750
+        'y': 320
       z: 2
       parent: 42f62244-d45b-415a-b97c-28cac68733bd
       embeds: []
       iscontainedinside:
         - 42f62244-d45b-415a-b97c-28cac68733bd
-    090078c2-f708-4a32-93da-435cb089eeec:
+    fbd62d3e-087e-46e8-b55b-c22f6d4c0c89:
       size:
         width: 60
         height: 60
       position:
-        x: 220
-        'y': 790
-      z: 3
-      parent: b7a83aba-5f77-4922-841c-fa659d86502d
+        x: 690
+        'y': 410
+      z: 2
+      parent: 42f62244-d45b-415a-b97c-28cac68733bd
       embeds: []
       iscontainedinside:
-        - b7a83aba-5f77-4922-841c-fa659d86502d
+        - 42f62244-d45b-415a-b97c-28cac68733bd
