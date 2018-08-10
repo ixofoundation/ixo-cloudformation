@@ -346,33 +346,33 @@ Resources:
                 ensureRunning: 'true'
         PrepareIxoWeb:
           sources:
-            "/home/ec2-user/ixo-web-repository": "https://github.com/ixofoundation/ixo-web/tarball/master"
+            "/home/ec2-user/ixo-world-repository": "https://github.com/ixofoundation/ixo-world/tarball/master"
           commands:
             create-deployment-dir:
-              command: mkdir -p ixo-web/bin
+              command: mkdir -p ixo-world/bin
               cwd: "/home/ec2-user"
             extract-docker-compose:
-              command: cp ixo-web-repository/docker-compose.yml ixo-web/
+              command: cp ixo-world-repository/docker-compose.yml ixo-world/
               cwd: "/home/ec2-user"
             extract-docker-compose-dev:
-              command: cp ixo-web-repository/docker-compose.dev.yml ixo-web/
+              command: cp ixo-world-repository/docker-compose.dev.yml ixo-world/
               cwd: "/home/ec2-user"
             extract-docker-compose-prod:
-              command: cp ixo-web-repository/docker-compose.prod.yml ixo-web/
+              command: cp ixo-world-repository/docker-compose.prod.yml ixo-world/
               cwd: "/home/ec2-user"
-            extract-ixo-web-scripts:
-              command: cp ixo-web-repository/bin/* ixo-web/bin
+            extract-ixo-world-scripts:
+              command: cp ixo-world-repository/bin/* ixo-world/bin
               cwd: "/home/ec2-user"
             remove-repository:
-              command: rm -rf ixo-web-repository
+              command: rm -rf ixo-world-repository
               cwd: "/home/ec2-user"
         DeployIxoWeb:
           commands:
-            docker-compose-ixo-web:
+            docker-compose-ixo-world:
               command: './bin/start.sh'
-              cwd: "/home/ec2-user/ixo-web"
+              cwd: "/home/ec2-user/ixo-world"
               env:
-                HOME: "/home/ec2-user/ixo-web"
+                HOME: "/home/ec2-user/ixo-world"
 
       'AWS::CloudFormation::Designer':
         id: c3a5303a-dbf0-48fd-b783-1a34c6c78342
@@ -431,7 +431,7 @@ Resources:
             - ''
       Tags:
         - Key: Name
-          Value: ixo Web Instance
+          Value: ixo World Instance
         - Key: Stack
           Value: !Ref 'AWS::StackName'
         - Key: Application

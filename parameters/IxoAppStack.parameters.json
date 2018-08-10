@@ -1,0 +1,14 @@
+[
+  {
+    "ParameterKey": "NetworkStackName",
+    "ParameterValue": "Ixo-Networking-Stack"
+  },
+  {
+    "ParameterKey": "KeyName",
+    "ParameterValue": "ixoworld.xyz"
+  },
+  {
+    "ParameterKey": "ApphostInstanceType",
+    "ParameterValue": "t2.medium"
+  }
+]
