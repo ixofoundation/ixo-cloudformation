@@ -2,6 +2,14 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: >-
   AWS CloudFormation template instantiating a stack serving ixo web
 Parameters:
+  TargetEnvironment:
+    Description: Purpose of environment the stack will represent
+    Type: String
+    Default: prod
+    AllowedValues:
+      - prod
+      - uat
+      - dev
   NetworkStackName:
     Description: >-
       Name of an active CloudFormation stack that contains the networking
