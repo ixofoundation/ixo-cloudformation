@@ -1,11 +1,11 @@
 [
   {
     "ParameterKey": "NetworkStackName",
-    "ParameterValue": "Ixo-Networking-Stack"
+    "ParameterValue": "Ixo-Networking-Stack-CLOSED-BETA"
   },
   {
     "ParameterKey": "KeyName",
-    "ParameterValue": "ixoworld.xyz"
+    "ParameterValue": "explorer.ixo.world"
   },
   {
     "ParameterKey": "BlockchainExplorerInstanceType",

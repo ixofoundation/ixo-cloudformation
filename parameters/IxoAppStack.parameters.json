@@ -1,0 +1,14 @@
+[
+  {
+    "ParameterKey": "NetworkStackName",
+    "ParameterValue": "Ixo-Networking-Stack-CLOSED-BETA"
+  },
+  {
+    "ParameterKey": "KeyName",
+    "ParameterValue": "app.ixo.world"
+  },
+  {
+    "ParameterKey": "ApphostInstanceType",
+    "ParameterValue": "t2.medium"
+  }
+]
