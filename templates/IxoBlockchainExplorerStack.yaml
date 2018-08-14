@@ -430,6 +430,12 @@ Resources:
               group: root
         DeployBlockchainExplorer:
           commands:
+            create-symlink-data-volume:
+              command: ln -s /persistent-volume/data data
+              cwd: "/home/ec2-user/ixo-blockchain-explorer"
+            create-symlink-data-volume-permissions:
+              command: chmod -R ugo+r+w+x data
+              cwd: "/home/ec2-user/ixo-blockchain-explorer"
             docker-compose-ixo-blockchain-explorer:
               command: './bin/start.sh skip-building'
               cwd: "/home/ec2-user/ixo-blockchain-explorer"
