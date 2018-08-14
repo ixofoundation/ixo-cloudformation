@@ -2,6 +2,14 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: >-
   AWS CloudFormation template instantiating a stack serving ixo web
 Parameters:
+  TargetEnvironment:
+    Description: Purpose of environment the stack will represent
+    Type: String
+    Default: prod
+    AllowedValues:
+      - prod
+      - uat
+      - dev
   NetworkStackName:
     Description: >-
       Name of an active CloudFormation stack that contains the networking
@@ -354,11 +362,11 @@ Resources:
             extract-docker-compose:
               command: cp ixo-world-repository/docker-compose.yml ixo-world/
               cwd: "/home/ec2-user"
-            extract-docker-compose-dev:
-              command: cp ixo-world-repository/docker-compose.dev.yml ixo-world/
-              cwd: "/home/ec2-user"
             extract-docker-compose-prod:
               command: cp ixo-world-repository/docker-compose.prod.yml ixo-world/
+              cwd: "/home/ec2-user"
+            extract-docker-compose-uat:
+              command: cp ixo-world-repository/docker-compose.uat.yml ixo-world/
               cwd: "/home/ec2-user"
             extract-ixo-world-scripts:
               command: cp ixo-world-repository/bin/* ixo-world/bin
@@ -369,7 +377,7 @@ Resources:
         DeployIxoWeb:
           commands:
             docker-compose-ixo-world:
-              command: './bin/start.sh'
+              command: !Join [ " ", [ './bin/start.sh', !Ref TargetEnvironment ] ]
               cwd: "/home/ec2-user/ixo-world"
               env:
                 HOME: "/home/ec2-user/ixo-world"
