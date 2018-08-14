@@ -1,7 +1,7 @@
 [
   {
     "ParameterKey": "NetworkStackName",
-    "ParameterValue": "Ixo-Networking-Stack-CLOSED-BETA"
+    "ParameterValue": "Ixo-Networking-Stack"
   },
   {
     "ParameterKey": "KeyName",
