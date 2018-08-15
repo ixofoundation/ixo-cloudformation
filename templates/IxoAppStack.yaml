@@ -362,11 +362,11 @@ Resources:
             extract-docker-compose:
               command: cp ixo-web-repository/docker-compose.yml ixo-web/
               cwd: "/home/ec2-user"
-            extract-docker-compose-dev:
-              command: cp ixo-web-repository/docker-compose.dev.yml ixo-web/
-              cwd: "/home/ec2-user"
             extract-docker-compose-prod:
               command: cp ixo-web-repository/docker-compose.prod.yml ixo-web/
+              cwd: "/home/ec2-user"
+            extract-docker-compose-uat:
+              command: cp ixo-web-repository/docker-compose.uat.yml ixo-web/
               cwd: "/home/ec2-user"
             extract-ixo-web-scripts:
               command: cp ixo-web-repository/bin/* ixo-web/bin
@@ -377,7 +377,7 @@ Resources:
         DeployIxoWeb:
           commands:
             docker-compose-ixo-web:
-              command: './bin/start.sh'
+              command: !Join [ " ", [ './bin/start.sh', !Ref TargetEnvironment ] ]
               cwd: "/home/ec2-user/ixo-web"
               env:
                 HOME: "/home/ec2-user/ixo-web"
