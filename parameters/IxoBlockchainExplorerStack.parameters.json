@@ -1,11 +1,11 @@
 [
   {
     "ParameterKey": "TargetEnvironment",
-    "ParameterValue": "uat"
+    "ParameterValue": "prod"
   },
   {
     "ParameterKey": "NetworkStackName",
-    "ParameterValue": "Ixo-Networking-Stack-UAT"
+    "ParameterValue": "Ixo-Networking-Stack-CLOSED-BETA"
   },
   {
     "ParameterKey": "KeyName",
