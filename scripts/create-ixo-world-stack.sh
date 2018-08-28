@@ -1,8 +1,12 @@
-#!/bin/bash -xe
+#!/bin/sh
 
-STACK_SUFFIX="-$1"
-if [ "$#" -ne 1 ]; then
-    STACK_SUFFIX=""
-fi
+SCRIPTS_DIR=`dirname $0`
+source "$SCRIPTS_DIR/isolate-arguments.sh"
 
-aws cloudformation create-stack --stack-name Ixo-World-Stack$STACK_SUFFIX --template-body file://templates/IxoWorldStack.yaml  --parameters file://parameters/IxoWorldStack.parameters.json --profile trustlab.cli --region eu-west-1
+echo "SCRIPTS_DIR: $SCRIPTS_DIR"
+echo "STACK_SUFFIX: $STACK_SUFFIX"
+echo "TARGET_REGION: $TARGET_REGION"
+
+sed -i '' "s|%%NetworkStackName%%|$NETWORK_STACK|" "$SCRIPTS_DIR/../parameters/IxoWorldStack.parameters.json"
+
+aws cloudformation create-stack --stack-name Ixo-World-Stack$STACK_SUFFIX --template-body file://templates/IxoWorldStack.yaml  --parameters file://parameters/IxoWorldStack.parameters.json --profile trustlab.cli --region $TARGET_REGION
