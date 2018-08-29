@@ -9,7 +9,7 @@ Parameters:
     AllowedValues:
       - prod
       - uat
-      - dev
+      - qa
   NetworkStackName:
     Description: >-
       Name of an active CloudFormation stack that contains the networking
@@ -97,6 +97,10 @@ Parameters:
     Default: 0.0.0.0/0
     AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
     ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+Conditions:
+  IsProdTargetEnvironent: !Equals [ !Ref TargetEnvironment, prod ]
+  IsUatTargetEnvironent: !Equals [ !Ref TargetEnvironment, uat ]
+  IsQATargetEnvironent: !Equals [ !Ref TargetEnvironment, qa ]
 Mappings:
   AWSInstanceType2Arch:
     t1.micro:
@@ -300,6 +304,7 @@ Resources:
           Prepare:
             - PrepareCfnHup
             - PrepareDocker
+            - PrepareEnvironmentVariables
             - PrepareBlockchainExplorer
             - PreparePersistentFilesystemLinkingScript
           Deploy:
@@ -378,6 +383,13 @@ Resources:
               docker:
                 enabled: 'true'
                 ensureRunning: 'true'
+        PrepareEnvironmentVariables:
+          files:
+            "/etc/environment":
+              content: !Join [ "=", [ 'TARGET_ENVIRONMENT', !Ref TargetEnvironment ] ]
+              mode: '000744'
+              owner: root
+              group: root
         PrepareBlockchainExplorer:
           sources:
             "/home/ec2-user/ixo-blockchain-explorer-repository": "https://github.com/ixofoundation/ixo-cosmos/tarball/master"
@@ -394,6 +406,9 @@ Resources:
             remove-repository:
               command: rm -rf ixo-blockchain-explorer-repository
               cwd: "/home/ec2-user"
+            replace-docker-image-master-tag-with-dev-if-qa:
+              command: !If [IsQATargetEnvironent, "sed -i 's/ixo-blockchain:master/ixo-blockchain:dev/g' docker-compose.yml", echo "not replacing master image tag"]
+              cwd: "/home/ec2-user/ixo-blockchain-explorer"
         PreparePersistentFilesystemLinkingScript:
           files:
             "/tmp/wait-for-volume-and-format-filesystem.sh":
