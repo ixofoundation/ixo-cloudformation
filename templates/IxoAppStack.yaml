@@ -10,6 +10,15 @@ Parameters:
       - prod
       - uat
       - qa
+      - audit
+      - sdgfutures
+  ImageTag:
+    Description: Docker image tag that should be deployed
+    Type: String
+    Default: master
+    AllowedValues:
+      - master
+      - dev
   NetworkStackName:
     Description: >-
       Name of an active CloudFormation stack that contains the networking
@@ -89,6 +98,7 @@ Conditions:
   IsProdTargetEnvironent: !Equals [ !Ref TargetEnvironment, prod ]
   IsUatTargetEnvironent: !Equals [ !Ref TargetEnvironment, uat ]
   IsQATargetEnvironent: !Equals [ !Ref TargetEnvironment, qa ]
+  IsSdgTargetEnvironent: !Equals [ !Ref TargetEnvironment, sdgfutures ]
 Mappings:
   AWSInstanceType2Arch:
     t1.micro:
@@ -360,13 +370,15 @@ Resources:
         PrepareEnvironmentVariables:
           files:
             "/etc/environment":
-              content: !Join [ "=", [ 'TARGET_ENVIRONMENT', !Ref TargetEnvironment ] ]
+              content: !Sub |
+                TARGET_ENVIRONMENT=${TargetEnvironment}
+                IMAGE_TAG=${ImageTag}
               mode: '000744'
               owner: root
               group: root
         PrepareIxoWeb:
           sources:
-            "/home/ec2-user/ixo-web-repository": "https://github.com/ixofoundation/ixo-web/tarball/master"
+            "/home/ec2-user/ixo-web-repository": !Sub "https://github.com/ixofoundation/ixo-web/tarball/${ImageTag}"
           commands:
             create-deployment-dir:
               command: mkdir -p ixo-web/bin
@@ -374,20 +386,8 @@ Resources:
             extract-docker-compose:
               command: cp ixo-web-repository/docker-compose.yml ixo-web/
               cwd: "/home/ec2-user"
-            extract-docker-compose-prod:
-              command: !If [IsProdTargetEnvironent, "cp ixo-web-repository/docker-compose.prod.yml ixo-web/", echo "not copying docker-compose.prod.yml"]
-              cwd: "/home/ec2-user"
-            extract-docker-compose-uat:
-              command: !If [IsUatTargetEnvironent, "cp ixo-web-repository/docker-compose.uat.yml ixo-web/", echo "not copying docker-compose.uat.yml"]
-              cwd: "/home/ec2-user"
-            extract-docker-compose-qa:
-              command: !If [IsQATargetEnvironent, "cp ixo-web-repository/docker-compose.qa.yml ixo-web/", echo "not copying docker-compose.qa.yml"]
-              cwd: "/home/ec2-user"
-            extract-docker-compose-prod:
-              command: cp ixo-web-repository/docker-compose.prod.yml ixo-web/
-              cwd: "/home/ec2-user"
-            extract-docker-compose-uat:
-              command: cp ixo-web-repository/docker-compose.uat.yml ixo-web/
+            extract-docker-compose-overide:
+              command: !Sub 'cp ixo-web-repository/docker-compose.${TargetEnvironment}.yml ixo-web/'
               cwd: "/home/ec2-user"
             extract-ixo-web-scripts:
               command: cp ixo-web-repository/bin/* ixo-web/bin
@@ -396,7 +396,7 @@ Resources:
               command: rm -rf ixo-web-repository
               cwd: "/home/ec2-user"
             replace-docker-image-master-tag-with-dev-if-qa:
-              command: !If [IsQATargetEnvironent, "sed -i 's/ixo-web:master/ixo-web:dev/g' docker-compose.yml", echo "not replacing master image tag"]
+              command: !If [IsQATargetEnvironent, !Sub "sed -i 's/ixo-web:master/ixo-web:${ImageTag}/g' docker-compose.yml", echo "not replacing master image tag"]
               cwd: "/home/ec2-user/ixo-web"
         DeployIxoWeb:
           commands:
