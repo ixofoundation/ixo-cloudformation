@@ -4,6 +4,10 @@
     "ParameterValue": "%%TargetEnvironment%%"
   },
   {
+    "ParameterKey": "ImageTag",
+    "ParameterValue": "%%ImageTag%%"
+  },
+  {
     "ParameterKey": "NetworkStackName",
     "ParameterValue": "%%NetworkStackName%%"
   },
