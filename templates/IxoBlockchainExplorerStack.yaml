@@ -413,8 +413,11 @@ Resources:
             remove-repository:
               command: rm -rf ixo-blockchain-explorer-repository
               cwd: "/home/ec2-user"
-            replace-docker-image-tag:
+            replace-docker-image-tag-blockchain:
               command: !Sub "sed -i 's/ixo-blockchain:master/ixo-blockchain:${ImageTag}/g' docker-compose.yml"
+              cwd: "/home/ec2-user/ixo-blockchain-explorer"
+            replace-docker-image-tag-blocksync:
+              command: !Sub "sed -i 's/ixo-block-sync:master/ixo-block-sync:${ImageTag}/g' docker-compose.yml"
               cwd: "/home/ec2-user/ixo-blockchain-explorer"
         PreparePersistentFilesystemLinkingScript:
           files:
