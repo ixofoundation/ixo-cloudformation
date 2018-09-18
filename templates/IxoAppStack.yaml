@@ -395,8 +395,8 @@ Resources:
             remove-repository:
               command: rm -rf ixo-web-repository
               cwd: "/home/ec2-user"
-            replace-docker-image-master-tag-with-dev-if-qa:
-              command: !If [IsQATargetEnvironent, !Sub "sed -i 's/ixo-web:master/ixo-web:${ImageTag}/g' docker-compose.yml", echo "not replacing master image tag"]
+            replace-docker-image-tag:
+              command: !Sub "sed -i 's/ixo-web:master/ixo-web:${ImageTag}/g' docker-compose.yml"
               cwd: "/home/ec2-user/ixo-web"
         DeployIxoWeb:
           commands:

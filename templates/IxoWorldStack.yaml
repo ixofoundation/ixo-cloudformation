@@ -94,8 +94,6 @@ Parameters:
     Type: 'AWS::EC2::KeyPair::KeyName'
     ConstraintDescription: must be the name of an existing EC2 KeyPair.
     Default: ixoworld.xyz
-Conditions:
-  IsQATargetEnvironent: !Equals [ !Ref TargetEnvironment, qa ]
 Mappings:
   AWSInstanceType2Arch:
     t1.micro:
@@ -392,8 +390,8 @@ Resources:
             remove-repository:
               command: rm -rf ixo-world-repository
               cwd: "/home/ec2-user"
-            replace-docker-image-master-tag-with-dev-if-qa:
-              command: !If [IsQATargetEnvironent, !Sub "sed -i 's/ixo-world:master/ixo-world:${ImageTag}/g' docker-compose.yml", echo "not replacing master image tag"]
+            replace-docker-image-tag:
+              command: !Sub "sed -i 's/ixo-world:master/ixo-world:${ImageTag}/g' docker-compose.yml"
               cwd: "/home/ec2-user/ixo-world"
         DeployIxoWeb:
           commands:
