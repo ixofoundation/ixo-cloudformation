@@ -3,6 +3,11 @@
 SCRIPTS_DIR=`dirname $0`
 source "$SCRIPTS_DIR/isolate-arguments.sh"
 
+if [ "$TARGET_ENVIRONMENT" == "sdgfutures" ];
+then
+  IMAGE_TAG=dev
+fi
+
 echo "SCRIPTS_DIR: $SCRIPTS_DIR"
 echo "STACK_SUFFIX: $STACK_SUFFIX"
 echo "TARGET_ENVIRONMENT: $TARGET_ENVIRONMENT"
