@@ -90,7 +90,7 @@ Resources:
     Type: 'AWS::EC2::SubnetNetworkAclAssociation'
     Properties:
       SubnetId: !Ref PublicSubnet
-      NetworkAclId: !GetAtt 
+      NetworkAclId: !GetAtt
         - VPC
         - DefaultNetworkAcl
     Metadata:
@@ -133,6 +133,11 @@ Resources:
           FromPort: '46657'
           ToPort: '46657'
           CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: '1317'
+          ToPort: '1317'
+          CidrIp: 0.0.0.0/0
+
     Metadata:
       'AWS::CloudFormation::Designer':
         id: fbd62d3e-087e-46e8-b55b-c22f6d4c09c8a
@@ -235,7 +240,7 @@ Outputs:
       Name: !Sub '${AWS::StackName}-CloudflareProtectedInstancesSecurityGroup-Id'
   AvailabilityZone:
     Description: The availability zone to use for persistent volumes
-    Value: !GetAtt 
+    Value: !GetAtt
       - PublicSubnet
       - AvailabilityZone
     Export:
