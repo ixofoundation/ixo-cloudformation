@@ -415,7 +415,7 @@ Resources:
               cwd: "/home/ec2-user"
             replace-docker-image-tag:
               command: !Sub "sed -i 's/ixo-blockchain:master/ixo-blockchain:${ImageTag}/g' docker-compose.yml"
-            cwd: "/home/ec2-user/ixo-blockchain-explorer"
+              cwd: "/home/ec2-user/ixo-blockchain-explorer"
         PreparePersistentFilesystemLinkingScript:
           files:
             "/tmp/wait-for-volume-and-format-filesystem.sh":
