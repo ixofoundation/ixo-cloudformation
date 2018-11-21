@@ -80,6 +80,7 @@ case "$TARGET_ENVIRONMENT" in
     ;;
   audit)
     TARGET_REGION="eu-west-3"
+    TARGET_ENVIRONMENT="prod"
     ;;
   sdgfutures)
     TARGET_REGION="eu-central-1"
