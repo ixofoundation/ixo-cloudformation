@@ -96,18 +96,24 @@ Resources:
     Metadata:
       'AWS::CloudFormation::Designer':
         id: ed7176bb-1475-4c51-89e8-d8959196563a
-  PublicInstancesSecurityGroup:
+  SSHAccessInstancesSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       VpcId: !Ref VPC
       GroupDescription: >-
-        Enable HTTP traffic on port 80, HTTPS traffic on port 443 & SSH access
-        via port 22
+        Enable SSH traffic on port 22
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: '22'
           ToPort: '22'
           CidrIp: !Ref SSHLocation
+  PublicInstancesSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref VPC
+      GroupDescription: >-
+        Enable HTTP traffic on port 80, HTTPS traffic on port 443
+      SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: '80'
           ToPort: '80'
@@ -146,13 +152,8 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       GroupDescription: >-
-        Enable HTTP traffic on port 80 only from Cloudflare IPs & SSH access via
-        port 22
+        Enable HTTP traffic on port 80 only from Cloudflare IPs
       SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: '22'
-          ToPort: '22'
-          CidrIp: !Ref SSHLocation
         - IpProtocol: tcp
           FromPort: '80'
           ToPort: '80'
@@ -212,6 +213,23 @@ Resources:
     Metadata:
       'AWS::CloudFormation::Designer':
         id: fbd52d3e-087e-46f8-b55b-c22f6d4b0c79
+  PrivateInstancesSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref VPC
+      GroupDescription: >-
+        Enable SSH traffic on port 8001 and 8002 from LoadBalancer
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '8001'
+          ToPort: '8001'
+          SourceSecurityGroupId:
+              Ref: "CloudflareProtectedInstancesSecurityGroup"
+        - IpProtocol: tcp
+          FromPort: '8002'
+          ToPort: '8002'
+          SourceSecurityGroupId:
+              Ref: "CloudflareProtectedInstancesSecurityGroup"
 Outputs:
   VPCId:
     Description: VPC
@@ -223,11 +241,21 @@ Outputs:
     Value: !Ref PublicSubnet
     Export:
       Name: !Sub '${AWS::StackName}-PublicSubnet-Id'
+  SSHAccessInstancesSecurityGroupId:
+    Description: The security group Id to use for servers that need SSH access
+    Value: !Ref SSHAccessInstancesSecurityGroup
+    Export:
+      Name: !Sub '${AWS::StackName}-SSHAccessInstancesSecurityGroup-Id'
   PublicInstancesSecurityGroupId:
     Description: The security group Id to use for public servers
     Value: !Ref PublicInstancesSecurityGroup
     Export:
       Name: !Sub '${AWS::StackName}-PublicInstancesSecurityGroup-Id'
+  PrivateInstancesSecurityGroupId:
+    Description: The security group Id to use for private servers
+    Value: !Ref PrivateInstancesSecurityGroup
+    Export:
+      Name: !Sub '${AWS::StackName}-PrivateInstancesSecurityGroup-Id'
   BlockchainInstancesSecurityGroupId:
     Description: The security group Id to use for blockchain nodes
     Value: !Ref BlockchainInstancesSecurityGroup

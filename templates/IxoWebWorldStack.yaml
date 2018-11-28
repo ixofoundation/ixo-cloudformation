@@ -276,6 +276,58 @@ Mappings:
       HVM64: ami-3e60745c
       HVMG2: NOT_SUPPORTED
 Resources:
+  WorldElasticLoadBalancer:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties:
+      SecurityGroups:
+      - !ImportValue
+        # 'Fn::Sub': '${NetworkStackName}-PublicInstancesSecurityGroup-Id'
+        'Fn::Sub': '${NetworkStackName}-CloudflareProtectedInstancesSecurityGroup-Id'
+      Scheme: internet-facing
+      Subnets:
+      - !ImportValue
+        'Fn::Sub': '${NetworkStackName}-PublicSubnet-Id'
+      Instances:
+      - !Ref WebhostInstance
+      Listeners:
+      - LoadBalancerPort: '80'
+        InstancePort: '8001'
+        Protocol: HTTP
+      HealthCheck:
+        Target: HTTP:8001/
+        HealthyThreshold: '3'
+        UnhealthyThreshold: '5'
+        Interval: '30'
+        Timeout: '5'
+      ConnectionDrainingPolicy:
+        Enabled: 'true'
+        Timeout: '60'
+  WebElasticLoadBalancer:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties:
+      SecurityGroups:
+      - !ImportValue
+        # 'Fn::Sub': '${NetworkStackName}-PublicInstancesSecurityGroup-Id'
+        'Fn::Sub': '${NetworkStackName}-CloudflareProtectedInstancesSecurityGroup-Id'
+      Scheme: internet-facing
+      Subnets:
+      - !ImportValue
+        'Fn::Sub': '${NetworkStackName}-PublicSubnet-Id'
+      Instances:
+      - !Ref WebhostInstance
+      Listeners:
+      - LoadBalancerPort: '80'
+        InstancePort: '8002'
+        Protocol: HTTP
+      HealthCheck:
+        Target: HTTP:8002/
+        HealthyThreshold: '3'
+        UnhealthyThreshold: '5'
+        Interval: '30'
+        Timeout: '5'
+      ConnectionDrainingPolicy:
+        Enabled: 'true'
+        Timeout: '60'
   WebhostInstance:
     Type: 'AWS::EC2::Instance'
     Metadata:
@@ -373,7 +425,7 @@ Resources:
               group: root
         PrepareIxoWeb:
           sources:
-            "/home/ec2-user/ixo-world-repository": !Sub 'https://github.com/ixofoundation/ixo-world/tarball/${ImageTag}'
+            "/home/ec2-user/ixo-world-repository": !Sub 'https://github.com/ixofoundation/docker-ixo-web-world/tarball/${ImageTag}'
           commands:
             create-deployment-dir:
               command: mkdir -p ixo-world/bin
@@ -417,7 +469,9 @@ Resources:
       NetworkInterfaces:
         - GroupSet:
             - !ImportValue
-              'Fn::Sub': '${NetworkStackName}-CloudflareProtectedInstancesSecurityGroup-Id'
+              'Fn::Sub': '${NetworkStackName}-SSHAccessInstancesSecurityGroup-Id'
+            - !ImportValue
+              'Fn::Sub': '${NetworkStackName}-PrivateInstancesSecurityGroup-Id'
           AssociatePublicIpAddress: 'true'
           DeviceIndex: '0'
           DeleteOnTermination: 'true'
@@ -458,7 +512,7 @@ Resources:
             - ''
       Tags:
         - Key: Name
-          Value: ixo World Instance
+          Value: ixo Web World Instance
         - Key: Stack
           Value: !Ref 'AWS::StackName'
         - Key: Application
@@ -466,21 +520,6 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Timeout: PT5M
-  WebhostIPAddress:
-    Type: 'AWS::EC2::EIP'
-    Properties:
-      Domain: vpc
-      InstanceId: !Ref WebhostInstance
-    Metadata:
-      'AWS::CloudFormation::Designer':
-        id: b0d68bfc-1338-48b0-ac38-247fd9f34309
-Outputs:
-  PublicIp:
-    Description: PublicIp
-    Value: !Ref WebhostIPAddress
-    Export:
-      Name: !Sub '${AWS::StackName}-Ip-Address'
-
 Metadata:
   'AWS::CloudFormation::Designer':
     a895d245-b6bf-454e-b5fd-5e490bc49308:
