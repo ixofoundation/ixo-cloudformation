@@ -16,7 +16,7 @@
     "ParameterValue": "ixo.world"
   },
   {
-    "ParameterKey": "ApphostInstanceType",
+    "ParameterKey": "WebhostInstanceType",
     "ParameterValue": "t2.medium"
   }
 ]
