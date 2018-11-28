@@ -14,6 +14,6 @@ sed -i '' "s|%%TargetEnvironment%%|$TARGET_ENVIRONMENT|" "$SCRIPTS_DIR/../parame
 sed -i '' "s|%%ImageTag%%|$IMAGE_TAG|" "$SCRIPTS_DIR/../parameters/IxoBlockchainExplorerStack.parameters.json"
 sed -i '' "s|%%NetworkStackName%%|$NETWORK_STACK|" "$SCRIPTS_DIR/../parameters/IxoBlockchainExplorerStack.parameters.json"
 
-aws cloudformation create-stack --stack-name Ixo-Blockchain-Explorer-Stack$STACK_SUFFIX --template-body file://templates/IxoBlockchainExplorerStack.yaml  --parameters file://parameters/IxoBlockchainExplorerStack.parameters.json --profile trustlab.cli --region $TARGET_REGION
+aws cloudformation create-stack --stack-name Ixo-Blockchain-Explorer-Stack$STACK_SUFFIX --template-body file://templates/IxoBlockchainExplorerStack.yaml  --parameters file://parameters/IxoBlockchainExplorerStack.parameters.json --profile default --region $TARGET_REGION
 
 git checkout "$SCRIPTS_DIR/../parameters/IxoBlockchainExplorerStack.parameters.json"
