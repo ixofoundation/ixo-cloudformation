@@ -491,6 +491,8 @@ Resources:
       NetworkInterfaces:
         - GroupSet:
             - !ImportValue
+              'Fn::Sub': '${NetworkStackName}-SSHAccessInstancesSecurityGroup-Id'
+            - !ImportValue
               'Fn::Sub': '${NetworkStackName}-CloudflareProtectedInstancesSecurityGroup-Id'
             - !ImportValue
               'Fn::Sub': '${NetworkStackName}-BlockchainInstancesSecurityGroup-Id'
