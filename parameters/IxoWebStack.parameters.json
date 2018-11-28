@@ -1,0 +1,22 @@
+[
+  {
+    "ParameterKey": "TargetEnvironment",
+    "ParameterValue": "%%TargetEnvironment%%"
+  },
+  {
+    "ParameterKey": "ImageTag",
+    "ParameterValue": "%%ImageTag%%"
+  },
+  {
+    "ParameterKey": "NetworkStackName",
+    "ParameterValue": "%%NetworkStackName%%"
+  },
+  {
+    "ParameterKey": "KeyName",
+    "ParameterValue": "app.ixo.world"
+  },
+  {
+    "ParameterKey": "ApphostInstanceType",
+    "ParameterValue": "t2.medium"
+  }
+]
