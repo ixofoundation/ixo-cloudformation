@@ -13,7 +13,7 @@
   },
   {
     "ParameterKey": "KeyName",
-    "ParameterValue": "app.ixo.world"
+    "ParameterValue": "ixo.world"
   },
   {
     "ParameterKey": "ApphostInstanceType",
