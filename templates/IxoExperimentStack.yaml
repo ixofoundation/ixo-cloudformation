@@ -425,7 +425,7 @@ Resources:
             - ''
       Tags:
         - Key: Name
-          Value: ixo Web World Instance
+          Value: ixo Experiment Instance
         - Key: Stack
           Value: !Ref 'AWS::StackName'
         - Key: Application

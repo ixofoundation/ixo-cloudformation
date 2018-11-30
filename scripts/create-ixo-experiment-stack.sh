@@ -14,6 +14,6 @@ sed -i '' "s|%%TargetEnvironment%%|$TARGET_ENVIRONMENT|" "$SCRIPTS_DIR/../parame
 sed -i '' "s|%%ImageTag%%|$IMAGE_TAG|" "$SCRIPTS_DIR/../parameters/IxoWebWorldStack.parameters.json"
 sed -i '' "s|%%NetworkStackName%%|$NETWORK_STACK|" "$SCRIPTS_DIR/../parameters/IxoWebWorldStack.parameters.json"
 
-aws cloudformation create-stack --stack-name Ixo-Experimental-Stack$STACK_SUFFIX --template-body file://templates/IxoWebWorldStack.yaml  --parameters file://parameters/IxoWebWorldStack.parameters.json --profile default --region $TARGET_REGION --capabilities CAPABILITY_IAM
+aws cloudformation create-stack --stack-name Ixo-Experiment-Stack$STACK_SUFFIX --template-body file://templates/IxoExperimentStack.yaml  --parameters file://parameters/IxoWebWorldStack.parameters.json --profile default --region $TARGET_REGION --capabilities CAPABILITY_IAM
 
 git checkout "$SCRIPTS_DIR/../parameters/IxoWebWorldStack.parameters.json"
