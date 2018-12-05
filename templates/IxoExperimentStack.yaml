@@ -298,6 +298,11 @@ Resources:
             - PrepareEnvironmentVariables
             - PrepareAWSCLICredentials
             - PrepareAWSCLIConfig
+            - PrepareDocker
+            - PrepareDeployment
+            - SetPermissions
+          # Deploy:
+          #   - PerformDeployment
         PrepareCfnHup:
           files:
             /etc/cfn/cfn-hup.conf:
@@ -375,6 +380,87 @@ Resources:
               mode: '000600'
               owner: ec2-user
               group: ec2-user
+        PrepareDocker:
+          packages:
+            yum:
+              docker: []
+          users:
+            "ec2-user":
+              groups:
+                - "docker"
+          commands:
+            docker-compose-get:
+              command: "sudo curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-$(uname -s)-$(uname -m) -o docker-compose"
+              cwd: "/usr/local/bin/"
+            docker-compose-permissions:
+              command: "sudo chmod +x docker-compose"
+              cwd: "/usr/local/bin/"
+            docker-compose-root:
+              command: "ln -s /usr/local/bin/docker-compose docker-compose"
+              cwd: "/bin"
+            docker-compose-version:
+              command: "docker-compose --version"
+              cwd: "/home/ec2-user"
+          services:
+            sysvinit:
+              docker:
+                enabled: 'true'
+                ensureRunning: 'true'
+        PrepareDeployment:
+          sources:
+            "/home/ec2-user/code-repository": !Sub 'https://github.com/source-code-smith/docker-mongodb/tarball/${ImageTag}'
+          commands:
+            create-base-dir:
+              command: mkdir ixo-dir
+              cwd: "/home/ec2-user"
+              owner: ec2-user
+              group: ec2-user
+            create-data-volume-dir:
+              command: mkdir db
+              cwd: "/home/ec2-user/ixo-dir"
+              owner: ec2-user
+              group: ec2-user
+            create-deployment-bin-dir:
+              command: mkdir bin
+              cwd: "/home/ec2-user/ixo-dir"
+              owner: ec2-user
+              group: ec2-user
+            extract-docker-compose:
+              command: cp code-repository/docker-compose.yml ixo-dir/
+              cwd: "/home/ec2-user"
+              owner: ec2-user
+              group: ec2-user
+            create-mongodb-scripts-dir:
+              command: mkdir dbadmin
+              cwd: "/home/ec2-user/ixo-dir"
+              owner: ec2-user
+              group: ec2-user
+            extract-mongodb-scripts:
+              command: cp code-repository/dbadmin/* ixo-dir/dbadmin
+              cwd: "/home/ec2-user"
+              owner: ec2-user
+              group: ec2-user
+            extract-scripts:
+              command: cp code-repository/bin/* ixo-dir/bin
+              cwd: "/home/ec2-user"
+              owner: ec2-user
+              group: ec2-user
+            remove-repository:
+              command: rm -rf code-repository
+              cwd: "/home/ec2-user"
+        SetPermissions:
+          commands:
+            ec2-user-ownership:
+              command: chown -R ec2-user:ec2-user ixo-dir
+              cwd: "/home/ec2-user"
+        # PerformDeployment:
+        #   commands:
+        #     docker-compose:
+        #       command: !Join [ " ", [ './start.sh', !Ref TargetEnvironment ] ]
+        #       cwd: "/home/ec2-user/ixo-dir/bin"
+        #       env:
+        #         HOME: "/home/ec2-user/ixo-dir"
+
       'AWS::CloudFormation::Designer':
         id: c3a5303a-dbf0-48fd-b783-1a34c6c78342
     Properties:
@@ -415,6 +501,15 @@ Resources:
             - '         --region '
             - !Ref 'AWS::Region'
             - |+
+
+            # - '/opt/aws/bin/cfn-init -v '
+            # - '         --stack '
+            # - !Ref 'AWS::StackName'
+            # - '         --resource WebhostInstance '
+            # - '         --configsets Deploy '
+            # - '         --region '
+            # - !Ref 'AWS::Region'
+            # - |+
 
             - '/opt/aws/bin/cfn-signal -e $? '
             - '         --stack '
