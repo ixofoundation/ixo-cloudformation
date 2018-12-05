@@ -301,8 +301,6 @@ Resources:
             - PrepareDocker
             - PrepareDeployment
             - SetPermissions
-          # Deploy:
-          #   - PerformDeployment
         PrepareCfnHup:
           files:
             /etc/cfn/cfn-hup.conf:
@@ -450,17 +448,12 @@ Resources:
               cwd: "/home/ec2-user"
         SetPermissions:
           commands:
-            ec2-user-ownership:
+            ec2-user-ownership-aws:
+              command: chown -R ec2-user:ec2-user .aws
+              cwd: "/home/ec2-user"
+            ec2-user-ownership-ixo:
               command: chown -R ec2-user:ec2-user ixo-dir
               cwd: "/home/ec2-user"
-        # PerformDeployment:
-        #   commands:
-        #     docker-compose:
-        #       command: !Join [ " ", [ './start.sh', !Ref TargetEnvironment ] ]
-        #       cwd: "/home/ec2-user/ixo-dir/bin"
-        #       env:
-        #         HOME: "/home/ec2-user/ixo-dir"
-
       'AWS::CloudFormation::Designer':
         id: c3a5303a-dbf0-48fd-b783-1a34c6c78342
     Properties:
@@ -501,15 +494,6 @@ Resources:
             - '         --region '
             - !Ref 'AWS::Region'
             - |+
-
-            # - '/opt/aws/bin/cfn-init -v '
-            # - '         --stack '
-            # - !Ref 'AWS::StackName'
-            # - '         --resource WebhostInstance '
-            # - '         --configsets Deploy '
-            # - '         --region '
-            # - !Ref 'AWS::Region'
-            # - |+
 
             - '/opt/aws/bin/cfn-signal -e $? '
             - '         --stack '
