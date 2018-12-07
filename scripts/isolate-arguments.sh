@@ -68,7 +68,7 @@ fi
 IMAGE_TAG="master"
 case "$TARGET_ENVIRONMENT" in
   prod)
-    TARGET_REGION="us-east-1"
+    TARGET_REGION="eu-west-1"
     ;;
   uat)
     TARGET_REGION="ap-northeast-1"
