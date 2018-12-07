@@ -13,7 +13,7 @@
   },
   {
     "ParameterKey": "KeyName",
-    "ParameterValue": "ixo.world"
+    "ParameterValue": "webworld-prod.ixo.world"
   },
   {
     "ParameterKey": "WebhostInstanceType",
